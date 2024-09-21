@@ -1,0 +1,15 @@
+version: 0.2
+
+env:
+  git-credential-helper: yes
+  shell: bash
+
+phases:
+  pre_build:
+    commands:
+      - git config --global --add safe.directory /codebuild/output/srcDownload/src
+  build:
+    commands:
+      - PATH=${PATH}:~/.guard/bin
+      - cd cloudformation/resources/codebuild
+      - bash ./cfn-deploy.sh

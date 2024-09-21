@@ -1,0 +1,1 @@
+cloudformation/resources/cfn-guard/rules/aws-guard-rules-registry/1.0.2/guard-rules-registry-all-rules.guard

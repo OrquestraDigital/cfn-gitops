@@ -1,0 +1,797 @@
+# Available top-level fields are listed in code completion
+
+# Add Resources Here: uncomment the following lines
+# Resources:
+#   <resource name here>:
+#     Type: # resource type here - available resources are listed in code completion
+#     # <add resource-specific properties underneath this entry  - available properties are listed in code completion>
+#     Properties:
+# Usage examples:
+#
+# Create a new CodeCommit repository with CodeBuild CI/CD
+#
+#   aws cloudformation deploy \
+#     --stack-name my-new-project \
+#     --template-file ./template.yml \
+#     --capabilities CAPABILITY_IAM \
+#     --parameter-overrides 'RepositoryDescription=My new project description'
+#
+# Add CodeBuild CI/CD to an existing CodeCommit repository
+#
+#   aws cloudformation deploy \
+#     --stack-name my-existing-project-cicd \
+#     --template-file ./template.yml \
+#     --capabilities CAPABILITY_IAM \
+#     --parameter-overrides 'ExistingCodeCommitRepositoryName=my-existing-project'
+
+Description: >-
+  Basic CodeCommit repository and CodeBuild CI/CD setup. Updates to the default branch and pull
+  requests trigger CodeBuild builds.
+
+Parameters:
+  ExistingCodeCommitRepositoryName:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional. Leave this parameter blank to create a new CodeCommit repository. Specify the name
+      of an existing CodeCommit repository in this Region to apply CodeBuild CI/CD to the existing
+      repository. CodeBuild will look for a buildspec.yml at the root of the repository.
+  RepositoryDescription:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional. New CodeCommit repository description. CloudFormation stack name will be used as the
+      repository name. Unused if ExistingCodeCommitRepositoryName is specified.
+  DefaultGitBranch:
+    Type: String
+    Default: main
+  ConcurrentBuildLimit:
+    Type: Number
+    Default: 3
+  CodeBuildImage:
+    Type: String
+    Default: aws/codebuild/standard:5.0
+    Description: >-
+      See https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
+  CodeBuildServiceRoleManagedPolicyArns:
+    Type: CommaDelimitedList
+    Default: ''
+    Description: >-
+      Optional. Specify a list of additional IAM managed policy ARNs to be attached to the CodeBuild
+      service role. Consider the security implications of adding permissions to the CodeBuild job
+      before adding these. Example:
+      "arn:aws:iam::aws:policy/PowerUserAccess,arn:aws:iam::aws:policy/IAMFullAccess"
+  S3BucketReadPrincipalOrgIds:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional. Specify a comma separated list of Organization IDs to be granted read access into
+      the S3 created bucket. Example: "o-aaaaaaaaaa,o-bbbbbbbbbb"
+
+Conditions:
+  cNewCodeCommitRepository: !Equals [!Ref ExistingCodeCommitRepositoryName, '']
+  cExistingCodeCommitRepository: !Not [!Equals [!Ref ExistingCodeCommitRepositoryName, '']]
+  cRepositoryDescriptionProvided: !Not [!Equals [!Ref RepositoryDescription, '']]
+  cS3BucketReadPrincipalOrgIdsProvided: !Not [!Equals [!Ref S3BucketReadPrincipalOrgIds, '']]
+  cCodeBuildServiceRoleManagedPolicyArnsProvided: !Not
+    - !Equals [!Join ['', !Ref CodeBuildServiceRoleManagedPolicyArns], '']
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: cS3BucketReadPrincipalOrgIdsProvided
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Resource:
+              - !Sub '${S3Bucket.Arn}'
+              - !Sub '${S3Bucket.Arn}/*'
+            Condition:
+              StringEquals:
+                aws:PrincipalOrgID: !Split [',', !Ref S3BucketReadPrincipalOrgIds]
+
+  #############################
+  # New CodeCommit Repository #
+  #############################
+
+  S3FileFunction:
+    Type: AWS::Lambda::Function
+    Condition: cNewCodeCommitRepository
+    Properties:
+      Description: !Sub >-
+        Creates a zip file in S3 used when initializing the CodeCommit repository created by
+        CloudFormation stack ${AWS::StackName}.
+      Role: !Sub '${S3FileFunctionRole.Arn}'
+      Handler: index.handler
+      Timeout: 20
+      Runtime: python3.8
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3Bucket
+          S3_KEY: initial-repository-code.zip
+          STACK_NAME: !Ref AWS::StackName
+          DEFAULT_GIT_BRANCH: !Ref DefaultGitBranch
+          REPOSITORY_DESCRIPTION: !If
+            - cRepositoryDescriptionProvided
+            - !Ref RepositoryDescription
+            - '_Add project description here_'
+      Code:
+        ZipFile: |
+          import boto3
+          import botocore
+          import json
+          import os
+          import traceback
+          import cfnresponse
+          import zipfile
+          import textwrap
+
+          s3 = boto3.resource("s3", region_name=os.environ["AWS_REGION"])
+          cfn = boto3.client("cloudformation", region_name=os.environ["AWS_REGION"])
+
+          def handler(event, context):
+            print(json.dumps(event))
+
+            try:
+              phys_id = event.get("PhysicalResourceId")
+              logical_id = event["LogicalResourceId"]
+              stack_id = event["StackId"]
+              rp = event["ResourceProperties"]
+
+              s3_obj = s3.Object(os.environ['S3_BUCKET'], os.environ['S3_KEY'])
+
+              if event["RequestType"] in ["Create", "Update"]:
+                # Build the initial CodeCommit repository as a zip file
+                local_zip = '/tmp/initial-repository-code.zip'
+                zf = zipfile.ZipFile(local_zip, mode='w', compression=zipfile.ZIP_DEFLATED)
+
+                zf.writestr('buildspec.yml', textwrap.dedent(f"""\
+                # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+
+                version: 0.2
+
+                phases:
+                  pre_build:
+                    commands:
+                    - env
+
+                  build:
+                    commands:
+                    - bash buildspec-commands.sh
+                """))
+
+                zf.writestr('buildspec-commands.sh', textwrap.dedent(f"""\
+                #!/bin/bash
+
+                set -eux
+
+                echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
+
+                if [ "$CODEBUILD_SOURCE_VERSION" == '{os.environ['DEFAULT_GIT_BRANCH']}' ]; then
+                  echo "Do something special on builds for the {os.environ['DEFAULT_GIT_BRANCH']} branch here"
+                fi
+                """))
+
+                cfn_template_body = cfn.get_template(StackName=os.environ['STACK_NAME'])['TemplateBody']
+                project_cfn_template_path = f"cloudformation/{os.environ['STACK_NAME']}.yml"
+                zf.writestr(project_cfn_template_path, cfn_template_body)
+
+                zf.writestr('README.md', textwrap.dedent(f"""\
+                # {os.environ['STACK_NAME']}
+
+                {os.environ['REPOSITORY_DESCRIPTION']}
+
+                ## Contributing
+
+                1. Create a feature branch with your changes. Push the new feature branch to CodeCommit.
+                1. Create a pull request back into the `{os.environ['DEFAULT_GIT_BRANCH']}` branch.
+                1. Your feature branch build status will be posted as a comment on the pull request. If your build fails, make the necessary changes and push to your feature branch again.
+                1. Get a review from a maintainer. A maintainer will merge your pull request if the changes are approved.
+                1. Pull requests merged into the `{os.environ['DEFAULT_GIT_BRANCH']}` branch are automatically deployed by CodeBuild.
+
+                ## CI/CD
+
+                This CodeCommit repository is built in CodeBuild. All pushes to the git branch `{os.environ['DEFAULT_GIT_BRANCH']}` and all pull requests will trigger a build. Build status on pull request branches will be commented to the pull request. Build steps are configured in [`buildspec.yml`](./buildspec.yml).
+
+                Additional permissions can be granted to the CodeBuild project by modifying the `AWS::IAM::Role` resource `CodeBuildServiceRole` in the CloudFormation stack `{os.environ['STACK_NAME']}`.
+
+                ## Project Updates
+
+                This project was created by CloudFormation stack `{os.environ['STACK_NAME']}`. The CloudFormation template used to create the stack has been added to [`{project_cfn_template_path}`](./{project_cfn_template_path}). Consider updating CodeCommit and CodeBuild resources via the CloudFormation stack.
+                """))
+
+                zf.close()
+
+                # Store the zip file in S3 to be loaded into the CodeCommit initial repository
+                s3_obj.put(Body=open(local_zip, 'rb'))
+
+              elif event["RequestType"] == "Delete":
+                s3_obj.delete()
+
+              cfnresponse.send(
+                event,
+                context,
+                cfnresponse.SUCCESS,
+                {'Bucket': os.environ['S3_BUCKET'], 'Key': os.environ['S3_KEY']},
+                physicalResourceId=phys_id,
+              )
+
+            except Exception as e:
+              print(f"Error - {repr(e)} - {traceback.format_exc()}")
+              cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+
+  S3FileFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: cNewCodeCommitRepository
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub '${S3Bucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - cloudformation:GetTemplate
+                Resource: !Sub 'arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*'
+
+  CodeCommitRepositoryCode:
+    Type: Custom::S3File
+    Condition: cNewCodeCommitRepository
+    Properties:
+      ServiceToken: !Sub '${S3FileFunction.Arn}'
+
+  CodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Condition: cNewCodeCommitRepository
+    Properties:
+      RepositoryName: !Ref AWS::StackName
+      RepositoryDescription: !If [cRepositoryDescriptionProvided, !Ref RepositoryDescription, !Ref AWS::NoValue]
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      Code:
+        BranchName: !Ref DefaultGitBranch
+        S3:
+          Bucket: !Sub '${CodeCommitRepositoryCode.Bucket}'
+          Key: !Sub '${CodeCommitRepositoryCode.Key}'
+
+  ##################################
+  # Existing CodeCommit Repository #
+  ##################################
+
+  GetCodeCommitRepositoryFunction:
+    Type: AWS::Lambda::Function
+    Condition: cExistingCodeCommitRepository
+    Properties:
+      Description: !Sub 'Gets information about CodeCommit repository ${ExistingCodeCommitRepositoryName}'
+      Role: !Sub '${GetCodeCommitRepositoryFunctionRole.Arn}'
+      Handler: index.handler
+      Timeout: 20
+      Runtime: python3.8
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      Code:
+        ZipFile: |
+          import boto3
+          import botocore
+          import json
+          import os
+          import traceback
+          import cfnresponse
+
+          codecommit = boto3.client("codecommit", region_name=os.environ["AWS_REGION"])
+
+          def handler(event, context):
+            print(json.dumps(event))
+
+            try:
+              phys_id = event.get("PhysicalResourceId")
+              logical_id = event["LogicalResourceId"]
+              stack_id = event["StackId"]
+              rp = event["ResourceProperties"]
+
+              if event["RequestType"] in ["Create", "Update"]:
+                repo = codecommit.get_repository(repositoryName=rp['RepositoryName'])['repositoryMetadata']
+
+                cfnresponse.send(
+                  event,
+                  context,
+                  cfnresponse.SUCCESS,
+                  {'Name': repo['repositoryName'], 'Arn': repo['Arn'], 'CloneUrlHttp': repo['cloneUrlHttp']},
+                  physicalResourceId=phys_id,
+                )
+
+              elif event["RequestType"] == "Delete":
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, physicalResourceId=phys_id)
+
+            except Exception as e:
+              print(f"Error - {repr(e)} - {traceback.format_exc()}")
+              cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+
+  GetCodeCommitRepositoryFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: cExistingCodeCommitRepository
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: codecommit:GetRepository
+                Resource: !Sub 'arn:${AWS::Partition}:codecommit:${AWS::Region}:${AWS::AccountId}:${ExistingCodeCommitRepositoryName}'
+
+  ExistingCodeCommitRepository:
+    Type: Custom::GetCodeCommitRepository
+    Condition: cExistingCodeCommitRepository
+    Properties:
+      ServiceToken: !Sub '${GetCodeCommitRepositoryFunction.Arn}'
+      RepositoryName: !Ref ExistingCodeCommitRepositoryName
+
+  ###################
+  # CodeBuild CI/CD #
+  ###################
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref AWS::StackName
+      Description: !Sub
+        - 'Build project for CodeCommit repository ${RepositoryName}'
+        - RepositoryName: !If
+            - cNewCodeCommitRepository
+            - !Sub '${CodeCommitRepository.Name}'
+            - !Sub '${ExistingCodeCommitRepository.Name}'
+      ConcurrentBuildLimit: !Ref ConcurrentBuildLimit
+      ServiceRole: !Sub "${CodeBuildServiceRole.Arn}"
+      Source:
+        Type: CODECOMMIT
+        Location: !If
+          - cNewCodeCommitRepository
+          - !Sub "${CodeCommitRepository.CloneUrlHttp}"
+          - !Sub "${ExistingCodeCommitRepository.CloneUrlHttp}"
+      SourceVersion: !Ref DefaultGitBranch
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Ref CodeBuildImage
+        EnvironmentVariables:
+          - Name: "S3_BUCKET"
+            Value: !Ref S3Bucket
+          - Name: "CODECOMMIT_REPO_ARN"
+            Value: !If
+              - cNewCodeCommitRepository
+              - !Sub '${CodeCommitRepository.Arn}'
+              - !Sub '${ExistingCodeCommitRepository.Arn}'
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns: !If
+        - cCodeBuildServiceRoleManagedPolicyArnsProvided
+        - !Ref CodeBuildServiceRoleManagedPolicyArns
+        - !Ref AWS::NoValue
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+
+  CodeBuildServiceRolePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Roles: [!Ref CodeBuildServiceRole]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - codecommit:Get*
+              - codecommit:List*
+              - cloudformation:Get*
+              - cloudformation:Describe*
+              - lambda:List*
+              - lambda:Get*
+              - logs:Describe*
+              - logs:List*
+              - logs:Get*
+              - events:List*
+              - events:Describe*
+              - iam:Get*
+              - iam:List*
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - codecommit:GitPull
+              - codecommit:UpdateRepository*
+            Resource: !If
+              - cNewCodeCommitRepository
+              - !Sub '${CodeCommitRepository.Arn}'
+              - !Sub '${ExistingCodeCommitRepository.Arn}'
+          - Effect: Allow
+            Action:
+              - codebuild:*Project*
+            Resource:
+              - !Sub "${CodeBuildProject.Arn}"
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub '${CodeBuildLogGroup.Arn}'
+              - !Sub '${CodeBuildLogGroup.Arn}:*'
+          - Effect: Allow
+            Action:
+              - cloudformation:*Stack*
+              - cloudformation:*ChangeSet*
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*'
+          - Effect: Allow
+            Action:
+              - s3:*Bucket*
+              - s3:List*
+              - s3:Get*
+              - s3:PutObject*
+            Resource:
+              - !Sub '${S3Bucket.Arn}'
+              - !Sub '${S3Bucket.Arn}/*'
+          - Effect: Allow
+            Action:
+              - lambda:*Permission*
+              - lambda:*Function*
+            Resource:
+              - !Sub '${PullRequestBuildStatusFunction.Arn}'
+          - Effect: Allow
+            Action:
+              - logs:*Retention*
+            Resource:
+              - !Sub '${CodeBuildLogGroup.Arn}'
+          - Effect: Allow
+            Action:
+              - events:*Rule*
+              - events:Tag*
+              - events:Untag*
+            Resource:
+              - !Sub '${RepoEventsRule.Arn}'
+              - !Sub '${CodeBuildEventsRule.Arn}'
+              - !Sub '${PullRequestEventsRule.Arn}'
+          - Effect: Allow
+            Action:
+              - iam:TagRole
+              - iam:UntagRole
+              - iam:UpdateRoleDescription
+              - iam:UpdateRole
+            Resource:
+              - !Sub '${PullRequestBuildStatusFunctionRole.Arn}'
+              - !Sub '${EventsRole.Arn}'
+              - !Sub '${CodeBuildServiceRole.Arn}'
+
+          # Grant additional needed permissions for CodeBuild builds here. This example allows
+          # CodeBuild to manage CloudFormation stacks. Note that by default the role will not be
+          # allowed to update its own permissions.
+          # - Effect: Allow
+          #  Action:
+          #    - cloudformation:Get*
+          #    - cloudformation:Describe*
+          #    - cloudformation:List*
+          #    - cloudformation:*ChangeSet*
+          #    - cloudformation:*Template*
+          #    - cloudformation:*Stack*
+          #  Resource: '*'
+
+  CodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${AWS::StackName}'
+      RetentionInDays: 60
+
+  EventsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: "sts:AssumeRole"
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: codebuild:StartBuild
+                Resource: !Sub "${CodeBuildProject.Arn}"
+
+  RepoEventsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: !Sub
+        - >-
+            CodeCommit repository ${RepositoryName} branch ${DefaultGitBranch} events. Starts
+            CodeBuild project ${CodeBuildProject} builds. Created by CloudFormation stack
+            ${AWS::StackName}.
+        - RepositoryName: !If
+            - cNewCodeCommitRepository
+            - !Sub '${CodeCommitRepository.Name}'
+            - !Sub '${ExistingCodeCommitRepository.Name}'
+      EventPattern:
+        source: [aws.codecommit]
+        detail-type: [CodeCommit Repository State Change]
+        resources: !If
+          - cNewCodeCommitRepository
+          - [!Sub "${CodeCommitRepository.Arn}"]
+          - [!Sub "${ExistingCodeCommitRepository.Arn}"]
+        detail:
+          event: [referenceCreated, referenceUpdated]
+          referenceName: [!Ref DefaultGitBranch]
+      Targets:
+        - Id: codebuild-project
+          Arn: !Sub "${CodeBuildProject.Arn}"
+          RoleArn: !Sub "${EventsRole.Arn}"
+          InputTransformer:
+            InputTemplate: |
+              {
+                "sourceVersion": <sourceVersion>
+              }
+            InputPathsMap:
+              sourceVersion: "$.detail.referenceName"
+
+  CodeBuildEventsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: !Sub
+        - >-
+            CodeBuild project ${CodeBuildProject} build state change events. Invokes Lambda function
+            ${PullRequestBuildStatusFunction} to comment build info to CodeCommit repository
+            ${RepositoryName} pull requests. Created by CloudFormation stack ${AWS::StackName}.
+        - RepositoryName: !If
+            - cNewCodeCommitRepository
+            - !Sub '${CodeCommitRepository.Name}'
+            - !Sub '${ExistingCodeCommitRepository.Name}'
+      EventPattern:
+        source: [aws.codebuild]
+        detail-type: [CodeBuild Build State Change]
+        detail:
+          project-name: [!Ref CodeBuildProject]
+      Targets:
+        - Id: build-status-function
+          Arn: !Sub '${PullRequestBuildStatusFunction.Arn}'
+
+  PullRequestEventsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: !Sub
+        - >-
+            CodeCommit repository ${RepositoryName} pull request events. Starts CodeBuild
+            project ${CodeBuildProject} builds for pull requests. Created by CloudFormation stack
+            ${AWS::StackName}.
+        - RepositoryName: !If
+            - cNewCodeCommitRepository
+            - !Sub '${CodeCommitRepository.Name}'
+            - !Sub '${ExistingCodeCommitRepository.Name}'
+      EventPattern:
+        source: [aws.codecommit]
+        detail-type: [CodeCommit Pull Request State Change]
+        resources: !If
+          - cNewCodeCommitRepository
+          - [!Sub "${CodeCommitRepository.Arn}"]
+          - [!Sub "${ExistingCodeCommitRepository.Arn}"]
+        detail:
+          event:
+            - pullRequestCreated
+            - pullRequestSourceBranchUpdated
+      Targets:
+        - Id: codebuild-project
+          Arn: !Sub "${CodeBuildProject.Arn}"
+          RoleArn: !Sub "${EventsRole.Arn}"
+          InputTransformer:
+            InputTemplate: |
+              {
+                "sourceVersion": <sourceVersion>,
+                "environmentVariablesOverride": [
+                   {
+                       "name": "CI_PULL_REQUEST_ID",
+                       "value": <pullRequestId>,
+                       "type": "PLAINTEXT"
+                   },
+                   {
+                       "name": "CI_REPOSITORY_NAME",
+                       "value": <repositoryName>,
+                       "type": "PLAINTEXT"
+                   },
+                   {
+                       "name": "CI_SOURCE_COMMIT",
+                       "value": <sourceCommit>,
+                       "type": "PLAINTEXT"
+                   },
+                   {
+                       "name": "CI_DESTINATION_COMMIT",
+                       "value": <destinationCommit>,
+                       "type": "PLAINTEXT"
+                   }
+                ]
+              }
+            InputPathsMap:
+              sourceVersion: "$.detail.sourceCommit"
+              pullRequestId: "$.detail.pullRequestId"
+              repositoryName: "$.detail.repositoryNames[0]"
+              sourceCommit: "$.detail.sourceCommit"
+              destinationCommit: "$.detail.destinationCommit"
+
+  PullRequestBuildStatusFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: codecommit:PostCommentForPullRequest
+                Resource: !If
+                  - cNewCodeCommitRepository
+                  - !Sub '${CodeCommitRepository.Arn}'
+                  - !Sub '${ExistingCodeCommitRepository.Arn}'
+
+  PullRequestBuildStatusFunctionPermissionCodeBuildEventsRule:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref PullRequestBuildStatusFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !Sub '${CodeBuildEventsRule.Arn}'
+
+  PullRequestBuildStatusFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Posts comments to CodeCommit pull requests about CodeBuild builds
+      Role: !Sub '${PullRequestBuildStatusFunctionRole.Arn}'
+      Handler: index.handler
+      Timeout: 20
+      Runtime: python3.8
+      Tags:
+        - Key: CfnStackId
+          Value: !Ref AWS::StackId
+      Environment:
+        Variables:
+          PULL_REQUEST_EVENTS_RULE_NAME: !Ref PullRequestEventsRule
+      Code:
+        ZipFile: |
+          # Inspired by https://github.com/aws-samples/aws-codecommit-pull-request-aws-codebuild
+
+          import datetime
+          import boto3
+          import os
+          import json
+
+          codecommit = boto3.client('codecommit', region_name=os.environ["AWS_REGION"])
+
+          def handler(event, context):
+            print(json.dumps(event))
+
+            if event["detail-type"] != "CodeBuild Build State Change":
+              raise Exception(f"Error - Unexpected event received, detail-type: '{event['detail-type']}'")
+
+            pull_request_id = None
+            repository_name = None
+            source_commit = None
+            destination_commit = None
+
+            for env_var in event['detail']['additional-information']['environment']['environment-variables']:
+              if env_var['name'] == 'CI_PULL_REQUEST_ID': pull_request_id = env_var['value']
+              elif env_var['name'] == 'CI_REPOSITORY_NAME': repository_name = env_var['value']
+              elif env_var['name'] == 'CI_SOURCE_COMMIT': source_commit = env_var['value']
+              elif env_var['name'] == 'CI_DESTINATION_COMMIT': destination_commit = env_var['value']
+
+            if not pull_request_id or not repository_name or not source_commit or not destination_commit:
+              initiator = event['detail']['additional-information']['initiator']
+              print(
+                "Did not find pull request attributes in build env vars. Build initiator is likely not the pull"
+                f" request events rule {os.environ['PULL_REQUEST_EVENTS_RULE_NAME']}. Build initiator: {initiator}"
+              )
+              return
+
+            build_arn = event['detail']['build-id']
+            build_arn_elements = build_arn.split(':')
+            build_region = build_arn_elements[3]
+            build_id = build_arn_elements[-1]
+            build_link = f"/codesuite/codebuild/projects/{event['detail']['project-name']}/build/{event['detail']['project-name']}:{build_id}?region={build_region}"
+
+            if event['detail']['build-status'] == 'SUCCEEDED':
+              content = b'\\u2705 '.decode('unicode-escape')
+            elif event['detail']['build-status'] in ['FAILED', 'STOPPED']:
+              content = b'\\u274c '.decode('unicode-escape')
+            elif event['detail']['build-status'] in ['IN_PROGRESS']:
+              content = b'\\u23f1 '.decode('unicode-escape')
+
+            content += f"CodeBuild build **{event['detail']['build-status']}** for commit `{source_commit[0:8]}`: [`{build_id}`]({build_link})"
+
+            codecommit.post_comment_for_pull_request(
+              pullRequestId = pull_request_id,
+              repositoryName = repository_name,
+              beforeCommitId = source_commit,
+              afterCommitId = destination_commit,
+              content = content,
+            )

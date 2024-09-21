@@ -1,0 +1,893 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="cfn-guard validate report" tests="1" failures="1" errors="0" time="1102">
+    <testsuite name="/home/sandrociceros/_prj/final/aws-gitops-vanilla/cloudformation/templates/S3/S3Test.yaml" errors="0" failures="1" time="1102">
+        <testcase name="guard-rules-registry-all-rules.guard" time="1071">
+            <failure message="IAM_NO_INLINE_POLICY_CHECK">
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket Logging needs to be configured to enable logging.
+    Fix: Set the S3 Bucket property LoggingConfiguration to start logging into S3 bucket.
+  Check was not compliant as property [LoggingConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [ObjectLockEnabled] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket ObjectLockEnabled must be set to true.
+    Fix: Set the S3 property ObjectLockEnabled parameter to true.
+  Check was not compliant as property [ObjectLockEnabled] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicPolicy] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.IgnorePublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket Public Write Access controls need to be restricted.
+    Fix: Set S3 Bucket PublicAccessBlockConfiguration properties for BlockPublicAcls, BlockPublicPolicy, IgnorePublicAcls, RestrictPublicBuckets parameters to true.
+  Check was not compliant as property [PublicAccessBlockConfiguration.RestrictPublicBuckets] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: Bucket policies must feature a statement to enforce TLS usage.
+    Fix: Set a bucket policy statement to &apos;&quot;Action&quot;:&quot;s3:*&quot;,&quot;Effect&quot;:&quot;Deny&quot;,&quot;Principal&quot;:&quot;*&quot;,&quot;Resource&quot;:&quot;*&quot;,&quot;Condition&quot;:{&quot;Bool&quot;:{&quot;aws:SecureTransport&quot;:false}}&apos; .
+  Check was not compliant as property value [Path=/Resources/BucketPolicy/Properties/PolicyDocument/Statement/0[L:99,C:12] Value={&quot;Effect&quot;:&quot;Allow&quot;,&quot;Principal&quot;:&quot;*&quot;,&quot;Action&quot;:[&quot;s3:Get*&quot;,&quot;s3:List*&quot;],&quot;Resource&quot;:[{&quot;Fn::Sub&quot;:&quot;${S3Bucket.Arn}&quot;},{&quot;Fn::Sub&quot;:&quot;${S3Bucket.Arn}/*&quot;}],&quot;Condition&quot;:{&quot;StringEquals&quot;:{&quot;aws:PrincipalOrgID&quot;:{&quot;Fn::Split&quot;:[&quot;,&quot;,{&quot;Ref&quot;:&quot;S3BucketReadPrincipalOrgIds&quot;}]}}}}] not equal to value [Path=[L:0,C:0] Value={&quot;Action&quot;:&quot;s3:*&quot;,&quot;Effect&quot;:&quot;Deny&quot;,&quot;Principal&quot;:&quot;*&quot;,&quot;Resource&quot;:&quot;*&quot;,&quot;Condition&quot;:{&quot;Bool&quot;:{&quot;aws:SecureTransport&quot;:false}}}].Check was not compliant as property [PublicAccessBlockConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicPolicy] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.IgnorePublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket Public Write Access controls need to be restricted.
+    Fix: Set S3 Bucket PublicAccessBlockConfiguration properties for BlockPublicAcls, BlockPublicPolicy, IgnorePublicAcls, RestrictPublicBuckets parameters to true.
+  Check was not compliant as property [PublicAccessBlockConfiguration.RestrictPublicBuckets] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [VersioningConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket Versioning must be enabled.
+    Fix: Set the S3 Bucket property VersioningConfiguration.Status to &apos;Enabled&apos; .
+  Check was not compliant as property [VersioningConfiguration.Status] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket replication should be enabled.
+    Fix: Set S3 Bucket ReplicationConfiguration to another S3 Bucket.
+  Check was not compliant as property [ReplicationConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration] is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.BlockPublicPolicy] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].Check was not compliant as property [PublicAccessBlockConfiguration.IgnorePublicAcls] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: S3 Bucket Public Access controls need to be restricted.
+    Fix: Set S3 Bucket PublicAccessBlockConfiguration properties for BlockPublicAcls, BlockPublicPolicy, IgnorePublicAcls, RestrictPublicBuckets parameters to true.
+  Check was not compliant as property [PublicAccessBlockConfiguration.RestrictPublicBuckets] to compare from is missing. Value traversed to [Path=/Resources/S3Bucket/Properties[L:84,C:6] Value={&quot;BucketEncryption&quot;:{&quot;ServerSideEncryptionConfiguration&quot;:[{&quot;ServerSideEncryptionByDefault&quot;:{&quot;SSEAlgorithm&quot;:&quot;AES256&quot;}}]},&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}]}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have a dead-letter queue configured
+    Fix: Set the DeadLetterConfig.TargetAr Property to the Amazon Resource Name (ARN) of an Amazon SQS queue or Amazon SNS topic
+  Check was not compliant as property [DeadLetterConfig.TargetArn] is missing. Value traversed to [Path=/Resources/S3FileFunction/Properties[L:119,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Creates a zip file in S3 used when initializing the CodeCommit repository created by CloudFormation stack ${AWS::StackName}.&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${S3FileFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;S3_BUCKET&quot;:{&quot;Ref&quot;:&quot;S3Bucket&quot;},&quot;S3_KEY&quot;:&quot;initial-repository-code.zip&quot;,&quot;STACK_NAME&quot;:{&quot;Ref&quot;:&quot;AWS::StackName&quot;},&quot;DEFAULT_GIT_BRANCH&quot;:{&quot;Ref&quot;:&quot;DefaultGitBranch&quot;},&quot;REPOSITORY_DESCRIPTION&quot;:{&quot;Fn::If&quot;:[&quot;cRepositoryDescriptionProvided&quot;,{&quot;Ref&quot;:&quot;RepositoryDescription&quot;},&quot;_Add project description here_&quot;]}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+import zipfile
+import textwrap
+
+s3 = boto3.resource(&quot;s3&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+cfn = boto3.client(&quot;cloudformation&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    s3_obj = s3.Object(os.environ[&apos;S3_BUCKET&apos;], os.environ[&apos;S3_KEY&apos;])
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      # Build the initial CodeCommit repository as a zip file
+      local_zip = &apos;/tmp/initial-repository-code.zip&apos;
+      zf = zipfile.ZipFile(local_zip, mode=&apos;w&apos;, compression=zipfile.ZIP_DEFLATED)
+
+      zf.writestr(&apos;buildspec.yml&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+
+      version: 0.2
+
+      phases:
+        pre_build:
+          commands:
+          - env
+
+        build:
+          commands:
+          - bash buildspec-commands.sh
+      &quot;&quot;&quot;))
+
+      zf.writestr(&apos;buildspec-commands.sh&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      #!/bin/bash
+
+      set -eux
+
+      echo &quot;Running build for source &apos;$CODEBUILD_SOURCE_VERSION&apos;&quot;
+
+      if [ &quot;$CODEBUILD_SOURCE_VERSION&quot; == &apos;{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}&apos; ]; then
+        echo &quot;Do something special on builds for the {os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]} branch here&quot;
+      fi
+      &quot;&quot;&quot;))
+
+      cfn_template_body = cfn.get_template(StackName=os.environ[&apos;STACK_NAME&apos;])[&apos;TemplateBody&apos;]
+      project_cfn_template_path = f&quot;cloudformation/{os.environ[&apos;STACK_NAME&apos;]}.yml&quot;
+      zf.writestr(project_cfn_template_path, cfn_template_body)
+
+      zf.writestr(&apos;README.md&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # {os.environ[&apos;STACK_NAME&apos;]}
+
+      {os.environ[&apos;REPOSITORY_DESCRIPTION&apos;]}
+
+      ## Contributing
+
+      1. Create a feature branch with your changes. Push the new feature branch to CodeCommit.
+      1. Create a pull request back into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch.
+      1. Your feature branch build status will be posted as a comment on the pull request. If your build fails, make the necessary changes and push to your feature branch again.
+      1. Get a review from a maintainer. A maintainer will merge your pull request if the changes are approved.
+      1. Pull requests merged into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch are automatically deployed by CodeBuild.
+
+      ## CI/CD
+
+      This CodeCommit repository is built in CodeBuild. All pushes to the git branch `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` and all pull requests will trigger a build. Build status on pull request branches will be commented to the pull request. Build steps are configured in [`buildspec.yml`](./buildspec.yml).
+
+      Additional permissions can be granted to the CodeBuild project by modifying the `AWS::IAM::Role` resource `CodeBuildServiceRole` in the CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`.
+
+      ## Project Updates
+
+      This project was created by CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`. The CloudFormation template used to create the stack has been added to [`{project_cfn_template_path}`](./{project_cfn_template_path}). Consider updating CodeCommit and CodeBuild resources via the CloudFormation stack.
+      &quot;&quot;&quot;))
+
+      zf.close()
+
+      # Store the zip file in S3 to be loaded into the CodeCommit initial repository
+      s3_obj.put(Body=open(local_zip, &apos;rb&apos;))
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      s3_obj.delete()
+
+    cfnresponse.send(
+      event,
+      context,
+      cfnresponse.SUCCESS,
+      {&apos;Bucket&apos;: os.environ[&apos;S3_BUCKET&apos;], &apos;Key&apos;: os.environ[&apos;S3_KEY&apos;]},
+      physicalResourceId=phys_id,
+    )
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have a dead-letter queue configured
+    Fix: Set the DeadLetterConfig.TargetAr Property to the Amazon Resource Name (ARN) of an Amazon SQS queue or Amazon SNS topic
+  Check was not compliant as property [DeadLetterConfig.TargetArn] is missing. Value traversed to [Path=/Resources/GetCodeCommitRepositoryFunction/Properties[L:306,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Gets information about CodeCommit repository ${ExistingCodeCommitRepositoryName}&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${GetCodeCommitRepositoryFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+
+codecommit = boto3.client(&quot;codecommit&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      repo = codecommit.get_repository(repositoryName=rp[&apos;RepositoryName&apos;])[&apos;repositoryMetadata&apos;]
+
+      cfnresponse.send(
+        event,
+        context,
+        cfnresponse.SUCCESS,
+        {&apos;Name&apos;: repo[&apos;repositoryName&apos;], &apos;Arn&apos;: repo[&apos;Arn&apos;], &apos;CloneUrlHttp&apos;: repo[&apos;cloneUrlHttp&apos;]},
+        physicalResourceId=phys_id,
+      )
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, physicalResourceId=phys_id)
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have a dead-letter queue configured
+    Fix: Set the DeadLetterConfig.TargetAr Property to the Amazon Resource Name (ARN) of an Amazon SQS queue or Amazon SNS topic
+  Check was not compliant as property [DeadLetterConfig.TargetArn] is missing. Value traversed to [Path=/Resources/PullRequestBuildStatusFunction/Properties[L:728,C:6] Value={&quot;Description&quot;:&quot;Posts comments to CodeCommit pull requests about CodeBuild builds&quot;,&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${PullRequestBuildStatusFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;PULL_REQUEST_EVENTS_RULE_NAME&quot;:{&quot;Ref&quot;:&quot;PullRequestEventsRule&quot;}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;# Inspired by https://github.com/aws-samples/aws-codecommit-pull-request-aws-codebuild
+
+import datetime
+import boto3
+import os
+import json
+
+codecommit = boto3.client(&apos;codecommit&apos;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  if event[&quot;detail-type&quot;] != &quot;CodeBuild Build State Change&quot;:
+    raise Exception(f&quot;Error - Unexpected event received, detail-type: &apos;{event[&apos;detail-type&apos;]}&apos;&quot;)
+
+  pull_request_id = None
+  repository_name = None
+  source_commit = None
+  destination_commit = None
+
+  for env_var in event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;environment&apos;][&apos;environment-variables&apos;]:
+    if env_var[&apos;name&apos;] == &apos;CI_PULL_REQUEST_ID&apos;: pull_request_id = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_REPOSITORY_NAME&apos;: repository_name = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_SOURCE_COMMIT&apos;: source_commit = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_DESTINATION_COMMIT&apos;: destination_commit = env_var[&apos;value&apos;]
+
+  if not pull_request_id or not repository_name or not source_commit or not destination_commit:
+    initiator = event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;initiator&apos;]
+    print(
+      &quot;Did not find pull request attributes in build env vars. Build initiator is likely not the pull&quot;
+      f&quot; request events rule {os.environ[&apos;PULL_REQUEST_EVENTS_RULE_NAME&apos;]}. Build initiator: {initiator}&quot;
+    )
+    return
+
+  build_arn = event[&apos;detail&apos;][&apos;build-id&apos;]
+  build_arn_elements = build_arn.split(&apos;:&apos;)
+  build_region = build_arn_elements[3]
+  build_id = build_arn_elements[-1]
+  build_link = f&quot;/codesuite/codebuild/projects/{event[&apos;detail&apos;][&apos;project-name&apos;]}/build/{event[&apos;detail&apos;][&apos;project-name&apos;]}:{build_id}?region={build_region}&quot;
+
+  if event[&apos;detail&apos;][&apos;build-status&apos;] == &apos;SUCCEEDED&apos;:
+    content = b&apos;\\u2705 &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;FAILED&apos;, &apos;STOPPED&apos;]:
+    content = b&apos;\\u274c &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;IN_PROGRESS&apos;]:
+    content = b&apos;\\u23f1 &apos;.decode(&apos;unicode-escape&apos;)
+
+  content += f&quot;CodeBuild build **{event[&apos;detail&apos;][&apos;build-status&apos;]}** for commit `{source_commit[0:8]}`: [`{build_id}`]({build_link})&quot;
+
+  codecommit.post_comment_for_pull_request(
+    pullRequestId = pull_request_id,
+    repositoryName = repository_name,
+    beforeCommitId = source_commit,
+    afterCommitId = destination_commit,
+    content = content,
+  )
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have concurrent execution limits configured
+    Fix: Set the ReservedConcurrentExecutions property to an integer greater than or equal to 0
+  Check was not compliant as property [ReservedConcurrentExecutions] to compare from is missing. Value traversed to [Path=/Resources/S3FileFunction/Properties[L:119,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Creates a zip file in S3 used when initializing the CodeCommit repository created by CloudFormation stack ${AWS::StackName}.&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${S3FileFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;S3_BUCKET&quot;:{&quot;Ref&quot;:&quot;S3Bucket&quot;},&quot;S3_KEY&quot;:&quot;initial-repository-code.zip&quot;,&quot;STACK_NAME&quot;:{&quot;Ref&quot;:&quot;AWS::StackName&quot;},&quot;DEFAULT_GIT_BRANCH&quot;:{&quot;Ref&quot;:&quot;DefaultGitBranch&quot;},&quot;REPOSITORY_DESCRIPTION&quot;:{&quot;Fn::If&quot;:[&quot;cRepositoryDescriptionProvided&quot;,{&quot;Ref&quot;:&quot;RepositoryDescription&quot;},&quot;_Add project description here_&quot;]}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+import zipfile
+import textwrap
+
+s3 = boto3.resource(&quot;s3&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+cfn = boto3.client(&quot;cloudformation&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    s3_obj = s3.Object(os.environ[&apos;S3_BUCKET&apos;], os.environ[&apos;S3_KEY&apos;])
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      # Build the initial CodeCommit repository as a zip file
+      local_zip = &apos;/tmp/initial-repository-code.zip&apos;
+      zf = zipfile.ZipFile(local_zip, mode=&apos;w&apos;, compression=zipfile.ZIP_DEFLATED)
+
+      zf.writestr(&apos;buildspec.yml&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+
+      version: 0.2
+
+      phases:
+        pre_build:
+          commands:
+          - env
+
+        build:
+          commands:
+          - bash buildspec-commands.sh
+      &quot;&quot;&quot;))
+
+      zf.writestr(&apos;buildspec-commands.sh&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      #!/bin/bash
+
+      set -eux
+
+      echo &quot;Running build for source &apos;$CODEBUILD_SOURCE_VERSION&apos;&quot;
+
+      if [ &quot;$CODEBUILD_SOURCE_VERSION&quot; == &apos;{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}&apos; ]; then
+        echo &quot;Do something special on builds for the {os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]} branch here&quot;
+      fi
+      &quot;&quot;&quot;))
+
+      cfn_template_body = cfn.get_template(StackName=os.environ[&apos;STACK_NAME&apos;])[&apos;TemplateBody&apos;]
+      project_cfn_template_path = f&quot;cloudformation/{os.environ[&apos;STACK_NAME&apos;]}.yml&quot;
+      zf.writestr(project_cfn_template_path, cfn_template_body)
+
+      zf.writestr(&apos;README.md&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # {os.environ[&apos;STACK_NAME&apos;]}
+
+      {os.environ[&apos;REPOSITORY_DESCRIPTION&apos;]}
+
+      ## Contributing
+
+      1. Create a feature branch with your changes. Push the new feature branch to CodeCommit.
+      1. Create a pull request back into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch.
+      1. Your feature branch build status will be posted as a comment on the pull request. If your build fails, make the necessary changes and push to your feature branch again.
+      1. Get a review from a maintainer. A maintainer will merge your pull request if the changes are approved.
+      1. Pull requests merged into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch are automatically deployed by CodeBuild.
+
+      ## CI/CD
+
+      This CodeCommit repository is built in CodeBuild. All pushes to the git branch `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` and all pull requests will trigger a build. Build status on pull request branches will be commented to the pull request. Build steps are configured in [`buildspec.yml`](./buildspec.yml).
+
+      Additional permissions can be granted to the CodeBuild project by modifying the `AWS::IAM::Role` resource `CodeBuildServiceRole` in the CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`.
+
+      ## Project Updates
+
+      This project was created by CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`. The CloudFormation template used to create the stack has been added to [`{project_cfn_template_path}`](./{project_cfn_template_path}). Consider updating CodeCommit and CodeBuild resources via the CloudFormation stack.
+      &quot;&quot;&quot;))
+
+      zf.close()
+
+      # Store the zip file in S3 to be loaded into the CodeCommit initial repository
+      s3_obj.put(Body=open(local_zip, &apos;rb&apos;))
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      s3_obj.delete()
+
+    cfnresponse.send(
+      event,
+      context,
+      cfnresponse.SUCCESS,
+      {&apos;Bucket&apos;: os.environ[&apos;S3_BUCKET&apos;], &apos;Key&apos;: os.environ[&apos;S3_KEY&apos;]},
+      physicalResourceId=phys_id,
+    )
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have concurrent execution limits configured
+    Fix: Set the ReservedConcurrentExecutions property to an integer greater than or equal to 0
+  Check was not compliant as property [ReservedConcurrentExecutions] to compare from is missing. Value traversed to [Path=/Resources/GetCodeCommitRepositoryFunction/Properties[L:306,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Gets information about CodeCommit repository ${ExistingCodeCommitRepositoryName}&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${GetCodeCommitRepositoryFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+
+codecommit = boto3.client(&quot;codecommit&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      repo = codecommit.get_repository(repositoryName=rp[&apos;RepositoryName&apos;])[&apos;repositoryMetadata&apos;]
+
+      cfnresponse.send(
+        event,
+        context,
+        cfnresponse.SUCCESS,
+        {&apos;Name&apos;: repo[&apos;repositoryName&apos;], &apos;Arn&apos;: repo[&apos;Arn&apos;], &apos;CloneUrlHttp&apos;: repo[&apos;cloneUrlHttp&apos;]},
+        physicalResourceId=phys_id,
+      )
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, physicalResourceId=phys_id)
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: All AWS Lambda Functions must have concurrent execution limits configured
+    Fix: Set the ReservedConcurrentExecutions property to an integer greater than or equal to 0
+  Check was not compliant as property [ReservedConcurrentExecutions] to compare from is missing. Value traversed to [Path=/Resources/PullRequestBuildStatusFunction/Properties[L:728,C:6] Value={&quot;Description&quot;:&quot;Posts comments to CodeCommit pull requests about CodeBuild builds&quot;,&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${PullRequestBuildStatusFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;PULL_REQUEST_EVENTS_RULE_NAME&quot;:{&quot;Ref&quot;:&quot;PullRequestEventsRule&quot;}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;# Inspired by https://github.com/aws-samples/aws-codecommit-pull-request-aws-codebuild
+
+import datetime
+import boto3
+import os
+import json
+
+codecommit = boto3.client(&apos;codecommit&apos;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  if event[&quot;detail-type&quot;] != &quot;CodeBuild Build State Change&quot;:
+    raise Exception(f&quot;Error - Unexpected event received, detail-type: &apos;{event[&apos;detail-type&apos;]}&apos;&quot;)
+
+  pull_request_id = None
+  repository_name = None
+  source_commit = None
+  destination_commit = None
+
+  for env_var in event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;environment&apos;][&apos;environment-variables&apos;]:
+    if env_var[&apos;name&apos;] == &apos;CI_PULL_REQUEST_ID&apos;: pull_request_id = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_REPOSITORY_NAME&apos;: repository_name = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_SOURCE_COMMIT&apos;: source_commit = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_DESTINATION_COMMIT&apos;: destination_commit = env_var[&apos;value&apos;]
+
+  if not pull_request_id or not repository_name or not source_commit or not destination_commit:
+    initiator = event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;initiator&apos;]
+    print(
+      &quot;Did not find pull request attributes in build env vars. Build initiator is likely not the pull&quot;
+      f&quot; request events rule {os.environ[&apos;PULL_REQUEST_EVENTS_RULE_NAME&apos;]}. Build initiator: {initiator}&quot;
+    )
+    return
+
+  build_arn = event[&apos;detail&apos;][&apos;build-id&apos;]
+  build_arn_elements = build_arn.split(&apos;:&apos;)
+  build_region = build_arn_elements[3]
+  build_id = build_arn_elements[-1]
+  build_link = f&quot;/codesuite/codebuild/projects/{event[&apos;detail&apos;][&apos;project-name&apos;]}/build/{event[&apos;detail&apos;][&apos;project-name&apos;]}:{build_id}?region={build_region}&quot;
+
+  if event[&apos;detail&apos;][&apos;build-status&apos;] == &apos;SUCCEEDED&apos;:
+    content = b&apos;\\u2705 &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;FAILED&apos;, &apos;STOPPED&apos;]:
+    content = b&apos;\\u274c &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;IN_PROGRESS&apos;]:
+    content = b&apos;\\u23f1 &apos;.decode(&apos;unicode-escape&apos;)
+
+  content += f&quot;CodeBuild build **{event[&apos;detail&apos;][&apos;build-status&apos;]}** for commit `{source_commit[0:8]}`: [`{build_id}`]({build_link})&quot;
+
+  codecommit.post_comment_for_pull_request(
+    pullRequestId = pull_request_id,
+    repositoryName = repository_name,
+    beforeCommitId = source_commit,
+    afterCommitId = destination_commit,
+    content = content,
+  )
+&quot;}}].Check was not compliant as property [VpcConfig.SecurityGroupIds] is missing. Value traversed to [Path=/Resources/S3FileFunction/Properties[L:119,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Creates a zip file in S3 used when initializing the CodeCommit repository created by CloudFormation stack ${AWS::StackName}.&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${S3FileFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;S3_BUCKET&quot;:{&quot;Ref&quot;:&quot;S3Bucket&quot;},&quot;S3_KEY&quot;:&quot;initial-repository-code.zip&quot;,&quot;STACK_NAME&quot;:{&quot;Ref&quot;:&quot;AWS::StackName&quot;},&quot;DEFAULT_GIT_BRANCH&quot;:{&quot;Ref&quot;:&quot;DefaultGitBranch&quot;},&quot;REPOSITORY_DESCRIPTION&quot;:{&quot;Fn::If&quot;:[&quot;cRepositoryDescriptionProvided&quot;,{&quot;Ref&quot;:&quot;RepositoryDescription&quot;},&quot;_Add project description here_&quot;]}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+import zipfile
+import textwrap
+
+s3 = boto3.resource(&quot;s3&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+cfn = boto3.client(&quot;cloudformation&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    s3_obj = s3.Object(os.environ[&apos;S3_BUCKET&apos;], os.environ[&apos;S3_KEY&apos;])
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      # Build the initial CodeCommit repository as a zip file
+      local_zip = &apos;/tmp/initial-repository-code.zip&apos;
+      zf = zipfile.ZipFile(local_zip, mode=&apos;w&apos;, compression=zipfile.ZIP_DEFLATED)
+
+      zf.writestr(&apos;buildspec.yml&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+
+      version: 0.2
+
+      phases:
+        pre_build:
+          commands:
+          - env
+
+        build:
+          commands:
+          - bash buildspec-commands.sh
+      &quot;&quot;&quot;))
+
+      zf.writestr(&apos;buildspec-commands.sh&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      #!/bin/bash
+
+      set -eux
+
+      echo &quot;Running build for source &apos;$CODEBUILD_SOURCE_VERSION&apos;&quot;
+
+      if [ &quot;$CODEBUILD_SOURCE_VERSION&quot; == &apos;{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}&apos; ]; then
+        echo &quot;Do something special on builds for the {os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]} branch here&quot;
+      fi
+      &quot;&quot;&quot;))
+
+      cfn_template_body = cfn.get_template(StackName=os.environ[&apos;STACK_NAME&apos;])[&apos;TemplateBody&apos;]
+      project_cfn_template_path = f&quot;cloudformation/{os.environ[&apos;STACK_NAME&apos;]}.yml&quot;
+      zf.writestr(project_cfn_template_path, cfn_template_body)
+
+      zf.writestr(&apos;README.md&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # {os.environ[&apos;STACK_NAME&apos;]}
+
+      {os.environ[&apos;REPOSITORY_DESCRIPTION&apos;]}
+
+      ## Contributing
+
+      1. Create a feature branch with your changes. Push the new feature branch to CodeCommit.
+      1. Create a pull request back into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch.
+      1. Your feature branch build status will be posted as a comment on the pull request. If your build fails, make the necessary changes and push to your feature branch again.
+      1. Get a review from a maintainer. A maintainer will merge your pull request if the changes are approved.
+      1. Pull requests merged into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch are automatically deployed by CodeBuild.
+
+      ## CI/CD
+
+      This CodeCommit repository is built in CodeBuild. All pushes to the git branch `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` and all pull requests will trigger a build. Build status on pull request branches will be commented to the pull request. Build steps are configured in [`buildspec.yml`](./buildspec.yml).
+
+      Additional permissions can be granted to the CodeBuild project by modifying the `AWS::IAM::Role` resource `CodeBuildServiceRole` in the CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`.
+
+      ## Project Updates
+
+      This project was created by CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`. The CloudFormation template used to create the stack has been added to [`{project_cfn_template_path}`](./{project_cfn_template_path}). Consider updating CodeCommit and CodeBuild resources via the CloudFormation stack.
+      &quot;&quot;&quot;))
+
+      zf.close()
+
+      # Store the zip file in S3 to be loaded into the CodeCommit initial repository
+      s3_obj.put(Body=open(local_zip, &apos;rb&apos;))
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      s3_obj.delete()
+
+    cfnresponse.send(
+      event,
+      context,
+      cfnresponse.SUCCESS,
+      {&apos;Bucket&apos;: os.environ[&apos;S3_BUCKET&apos;], &apos;Key&apos;: os.environ[&apos;S3_KEY&apos;]},
+      physicalResourceId=phys_id,
+    )
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].Check was not compliant as property [VpcConfig.SecurityGroupIds] is missing. Value traversed to [Path=/Resources/GetCodeCommitRepositoryFunction/Properties[L:306,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Gets information about CodeCommit repository ${ExistingCodeCommitRepositoryName}&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${GetCodeCommitRepositoryFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+
+codecommit = boto3.client(&quot;codecommit&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      repo = codecommit.get_repository(repositoryName=rp[&apos;RepositoryName&apos;])[&apos;repositoryMetadata&apos;]
+
+      cfnresponse.send(
+        event,
+        context,
+        cfnresponse.SUCCESS,
+        {&apos;Name&apos;: repo[&apos;repositoryName&apos;], &apos;Arn&apos;: repo[&apos;Arn&apos;], &apos;CloneUrlHttp&apos;: repo[&apos;cloneUrlHttp&apos;]},
+        physicalResourceId=phys_id,
+      )
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, physicalResourceId=phys_id)
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].Check was not compliant as property [VpcConfig.SecurityGroupIds] is missing. Value traversed to [Path=/Resources/PullRequestBuildStatusFunction/Properties[L:728,C:6] Value={&quot;Description&quot;:&quot;Posts comments to CodeCommit pull requests about CodeBuild builds&quot;,&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${PullRequestBuildStatusFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;PULL_REQUEST_EVENTS_RULE_NAME&quot;:{&quot;Ref&quot;:&quot;PullRequestEventsRule&quot;}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;# Inspired by https://github.com/aws-samples/aws-codecommit-pull-request-aws-codebuild
+
+import datetime
+import boto3
+import os
+import json
+
+codecommit = boto3.client(&apos;codecommit&apos;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  if event[&quot;detail-type&quot;] != &quot;CodeBuild Build State Change&quot;:
+    raise Exception(f&quot;Error - Unexpected event received, detail-type: &apos;{event[&apos;detail-type&apos;]}&apos;&quot;)
+
+  pull_request_id = None
+  repository_name = None
+  source_commit = None
+  destination_commit = None
+
+  for env_var in event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;environment&apos;][&apos;environment-variables&apos;]:
+    if env_var[&apos;name&apos;] == &apos;CI_PULL_REQUEST_ID&apos;: pull_request_id = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_REPOSITORY_NAME&apos;: repository_name = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_SOURCE_COMMIT&apos;: source_commit = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_DESTINATION_COMMIT&apos;: destination_commit = env_var[&apos;value&apos;]
+
+  if not pull_request_id or not repository_name or not source_commit or not destination_commit:
+    initiator = event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;initiator&apos;]
+    print(
+      &quot;Did not find pull request attributes in build env vars. Build initiator is likely not the pull&quot;
+      f&quot; request events rule {os.environ[&apos;PULL_REQUEST_EVENTS_RULE_NAME&apos;]}. Build initiator: {initiator}&quot;
+    )
+    return
+
+  build_arn = event[&apos;detail&apos;][&apos;build-id&apos;]
+  build_arn_elements = build_arn.split(&apos;:&apos;)
+  build_region = build_arn_elements[3]
+  build_id = build_arn_elements[-1]
+  build_link = f&quot;/codesuite/codebuild/projects/{event[&apos;detail&apos;][&apos;project-name&apos;]}/build/{event[&apos;detail&apos;][&apos;project-name&apos;]}:{build_id}?region={build_region}&quot;
+
+  if event[&apos;detail&apos;][&apos;build-status&apos;] == &apos;SUCCEEDED&apos;:
+    content = b&apos;\\u2705 &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;FAILED&apos;, &apos;STOPPED&apos;]:
+    content = b&apos;\\u274c &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;IN_PROGRESS&apos;]:
+    content = b&apos;\\u23f1 &apos;.decode(&apos;unicode-escape&apos;)
+
+  content += f&quot;CodeBuild build **{event[&apos;detail&apos;][&apos;build-status&apos;]}** for commit `{source_commit[0:8]}`: [`{build_id}`]({build_link})&quot;
+
+  codecommit.post_comment_for_pull_request(
+    pullRequestId = pull_request_id,
+    repositoryName = repository_name,
+    beforeCommitId = source_commit,
+    afterCommitId = destination_commit,
+    content = content,
+  )
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation:  All AWS Lambda Functions must be configured with access to a VPC
+    Fix: set the VpcConfig.SecurityGroupIds and VpcConfig.SubnetIds parameters with a list of security groups and subnets.
+    Lambda creates an elastic network interface for each combination of security group and subnet in the function&apos;s VPC configuration.
+  Check was not compliant as property [VpcConfig.SubnetIds] is missing. Value traversed to [Path=/Resources/S3FileFunction/Properties[L:119,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Creates a zip file in S3 used when initializing the CodeCommit repository created by CloudFormation stack ${AWS::StackName}.&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${S3FileFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;S3_BUCKET&quot;:{&quot;Ref&quot;:&quot;S3Bucket&quot;},&quot;S3_KEY&quot;:&quot;initial-repository-code.zip&quot;,&quot;STACK_NAME&quot;:{&quot;Ref&quot;:&quot;AWS::StackName&quot;},&quot;DEFAULT_GIT_BRANCH&quot;:{&quot;Ref&quot;:&quot;DefaultGitBranch&quot;},&quot;REPOSITORY_DESCRIPTION&quot;:{&quot;Fn::If&quot;:[&quot;cRepositoryDescriptionProvided&quot;,{&quot;Ref&quot;:&quot;RepositoryDescription&quot;},&quot;_Add project description here_&quot;]}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+import zipfile
+import textwrap
+
+s3 = boto3.resource(&quot;s3&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+cfn = boto3.client(&quot;cloudformation&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    s3_obj = s3.Object(os.environ[&apos;S3_BUCKET&apos;], os.environ[&apos;S3_KEY&apos;])
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      # Build the initial CodeCommit repository as a zip file
+      local_zip = &apos;/tmp/initial-repository-code.zip&apos;
+      zf = zipfile.ZipFile(local_zip, mode=&apos;w&apos;, compression=zipfile.ZIP_DEFLATED)
+
+      zf.writestr(&apos;buildspec.yml&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+
+      version: 0.2
+
+      phases:
+        pre_build:
+          commands:
+          - env
+
+        build:
+          commands:
+          - bash buildspec-commands.sh
+      &quot;&quot;&quot;))
+
+      zf.writestr(&apos;buildspec-commands.sh&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      #!/bin/bash
+
+      set -eux
+
+      echo &quot;Running build for source &apos;$CODEBUILD_SOURCE_VERSION&apos;&quot;
+
+      if [ &quot;$CODEBUILD_SOURCE_VERSION&quot; == &apos;{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}&apos; ]; then
+        echo &quot;Do something special on builds for the {os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]} branch here&quot;
+      fi
+      &quot;&quot;&quot;))
+
+      cfn_template_body = cfn.get_template(StackName=os.environ[&apos;STACK_NAME&apos;])[&apos;TemplateBody&apos;]
+      project_cfn_template_path = f&quot;cloudformation/{os.environ[&apos;STACK_NAME&apos;]}.yml&quot;
+      zf.writestr(project_cfn_template_path, cfn_template_body)
+
+      zf.writestr(&apos;README.md&apos;, textwrap.dedent(f&quot;&quot;&quot;\
+      # {os.environ[&apos;STACK_NAME&apos;]}
+
+      {os.environ[&apos;REPOSITORY_DESCRIPTION&apos;]}
+
+      ## Contributing
+
+      1. Create a feature branch with your changes. Push the new feature branch to CodeCommit.
+      1. Create a pull request back into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch.
+      1. Your feature branch build status will be posted as a comment on the pull request. If your build fails, make the necessary changes and push to your feature branch again.
+      1. Get a review from a maintainer. A maintainer will merge your pull request if the changes are approved.
+      1. Pull requests merged into the `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` branch are automatically deployed by CodeBuild.
+
+      ## CI/CD
+
+      This CodeCommit repository is built in CodeBuild. All pushes to the git branch `{os.environ[&apos;DEFAULT_GIT_BRANCH&apos;]}` and all pull requests will trigger a build. Build status on pull request branches will be commented to the pull request. Build steps are configured in [`buildspec.yml`](./buildspec.yml).
+
+      Additional permissions can be granted to the CodeBuild project by modifying the `AWS::IAM::Role` resource `CodeBuildServiceRole` in the CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`.
+
+      ## Project Updates
+
+      This project was created by CloudFormation stack `{os.environ[&apos;STACK_NAME&apos;]}`. The CloudFormation template used to create the stack has been added to [`{project_cfn_template_path}`](./{project_cfn_template_path}). Consider updating CodeCommit and CodeBuild resources via the CloudFormation stack.
+      &quot;&quot;&quot;))
+
+      zf.close()
+
+      # Store the zip file in S3 to be loaded into the CodeCommit initial repository
+      s3_obj.put(Body=open(local_zip, &apos;rb&apos;))
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      s3_obj.delete()
+
+    cfnresponse.send(
+      event,
+      context,
+      cfnresponse.SUCCESS,
+      {&apos;Bucket&apos;: os.environ[&apos;S3_BUCKET&apos;], &apos;Key&apos;: os.environ[&apos;S3_KEY&apos;]},
+      physicalResourceId=phys_id,
+    )
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation:  All AWS Lambda Functions must be configured with access to a VPC
+    Fix: set the VpcConfig.SecurityGroupIds and VpcConfig.SubnetIds parameters with a list of security groups and subnets.
+    Lambda creates an elastic network interface for each combination of security group and subnet in the function&apos;s VPC configuration.
+  Check was not compliant as property [VpcConfig.SubnetIds] is missing. Value traversed to [Path=/Resources/GetCodeCommitRepositoryFunction/Properties[L:306,C:6] Value={&quot;Description&quot;:{&quot;Fn::Sub&quot;:&quot;Gets information about CodeCommit repository ${ExistingCodeCommitRepositoryName}&quot;},&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${GetCodeCommitRepositoryFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;import boto3
+import botocore
+import json
+import os
+import traceback
+import cfnresponse
+
+codecommit = boto3.client(&quot;codecommit&quot;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  try:
+    phys_id = event.get(&quot;PhysicalResourceId&quot;)
+    logical_id = event[&quot;LogicalResourceId&quot;]
+    stack_id = event[&quot;StackId&quot;]
+    rp = event[&quot;ResourceProperties&quot;]
+
+    if event[&quot;RequestType&quot;] in [&quot;Create&quot;, &quot;Update&quot;]:
+      repo = codecommit.get_repository(repositoryName=rp[&apos;RepositoryName&apos;])[&apos;repositoryMetadata&apos;]
+
+      cfnresponse.send(
+        event,
+        context,
+        cfnresponse.SUCCESS,
+        {&apos;Name&apos;: repo[&apos;repositoryName&apos;], &apos;Arn&apos;: repo[&apos;Arn&apos;], &apos;CloneUrlHttp&apos;: repo[&apos;cloneUrlHttp&apos;]},
+        physicalResourceId=phys_id,
+      )
+
+    elif event[&quot;RequestType&quot;] == &quot;Delete&quot;:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, physicalResourceId=phys_id)
+
+  except Exception as e:
+    print(f&quot;Error - {repr(e)} - {traceback.format_exc()}&quot;)
+    cfnresponse.send(event, context, cfnresponse.FAILED, {}, physicalResourceId=phys_id, reason=repr(e))
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation:  All AWS Lambda Functions must be configured with access to a VPC
+    Fix: set the VpcConfig.SecurityGroupIds and VpcConfig.SubnetIds parameters with a list of security groups and subnets.
+    Lambda creates an elastic network interface for each combination of security group and subnet in the function&apos;s VPC configuration.
+  Check was not compliant as property [VpcConfig.SubnetIds] is missing. Value traversed to [Path=/Resources/PullRequestBuildStatusFunction/Properties[L:728,C:6] Value={&quot;Description&quot;:&quot;Posts comments to CodeCommit pull requests about CodeBuild builds&quot;,&quot;Role&quot;:{&quot;Fn::Sub&quot;:&quot;${PullRequestBuildStatusFunctionRole.Arn}&quot;},&quot;Handler&quot;:&quot;index.handler&quot;,&quot;Timeout&quot;:20,&quot;Runtime&quot;:&quot;python3.8&quot;,&quot;Tags&quot;:[{&quot;Key&quot;:&quot;CfnStackId&quot;,&quot;Value&quot;:{&quot;Ref&quot;:&quot;AWS::StackId&quot;}}],&quot;Environment&quot;:{&quot;Variables&quot;:{&quot;PULL_REQUEST_EVENTS_RULE_NAME&quot;:{&quot;Ref&quot;:&quot;PullRequestEventsRule&quot;}}},&quot;Code&quot;:{&quot;ZipFile&quot;:&quot;# Inspired by https://github.com/aws-samples/aws-codecommit-pull-request-aws-codebuild
+
+import datetime
+import boto3
+import os
+import json
+
+codecommit = boto3.client(&apos;codecommit&apos;, region_name=os.environ[&quot;AWS_REGION&quot;])
+
+def handler(event, context):
+  print(json.dumps(event))
+
+  if event[&quot;detail-type&quot;] != &quot;CodeBuild Build State Change&quot;:
+    raise Exception(f&quot;Error - Unexpected event received, detail-type: &apos;{event[&apos;detail-type&apos;]}&apos;&quot;)
+
+  pull_request_id = None
+  repository_name = None
+  source_commit = None
+  destination_commit = None
+
+  for env_var in event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;environment&apos;][&apos;environment-variables&apos;]:
+    if env_var[&apos;name&apos;] == &apos;CI_PULL_REQUEST_ID&apos;: pull_request_id = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_REPOSITORY_NAME&apos;: repository_name = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_SOURCE_COMMIT&apos;: source_commit = env_var[&apos;value&apos;]
+    elif env_var[&apos;name&apos;] == &apos;CI_DESTINATION_COMMIT&apos;: destination_commit = env_var[&apos;value&apos;]
+
+  if not pull_request_id or not repository_name or not source_commit or not destination_commit:
+    initiator = event[&apos;detail&apos;][&apos;additional-information&apos;][&apos;initiator&apos;]
+    print(
+      &quot;Did not find pull request attributes in build env vars. Build initiator is likely not the pull&quot;
+      f&quot; request events rule {os.environ[&apos;PULL_REQUEST_EVENTS_RULE_NAME&apos;]}. Build initiator: {initiator}&quot;
+    )
+    return
+
+  build_arn = event[&apos;detail&apos;][&apos;build-id&apos;]
+  build_arn_elements = build_arn.split(&apos;:&apos;)
+  build_region = build_arn_elements[3]
+  build_id = build_arn_elements[-1]
+  build_link = f&quot;/codesuite/codebuild/projects/{event[&apos;detail&apos;][&apos;project-name&apos;]}/build/{event[&apos;detail&apos;][&apos;project-name&apos;]}:{build_id}?region={build_region}&quot;
+
+  if event[&apos;detail&apos;][&apos;build-status&apos;] == &apos;SUCCEEDED&apos;:
+    content = b&apos;\\u2705 &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;FAILED&apos;, &apos;STOPPED&apos;]:
+    content = b&apos;\\u274c &apos;.decode(&apos;unicode-escape&apos;)
+  elif event[&apos;detail&apos;][&apos;build-status&apos;] in [&apos;IN_PROGRESS&apos;]:
+    content = b&apos;\\u23f1 &apos;.decode(&apos;unicode-escape&apos;)
+
+  content += f&quot;CodeBuild build **{event[&apos;detail&apos;][&apos;build-status&apos;]}** for commit `{source_commit[0:8]}`: [`{build_id}`]({build_link})&quot;
+
+  codecommit.post_comment_for_pull_request(
+    pullRequestId = pull_request_id,
+    repositoryName = repository_name,
+    beforeCommitId = source_commit,
+    afterCommitId = destination_commit,
+    content = content,
+  )
+&quot;}}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: CloudWatch Log LogsGroup does not have KmsKeyId set.
+    Fix: Set the KmsKeyId parameter to a ARN.
+  Check was not compliant as property [KmsKeyId] is missing. Value traversed to [Path=/Resources/CodeBuildLogGroup/Properties[L:549,C:6] Value={&quot;LogGroupName&quot;:{&quot;Fn::Sub&quot;:&quot;/aws/codebuild/${AWS::StackName}&quot;},&quot;RetentionInDays&quot;:60}].
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: Inline policies are not allowed on IAM Users, Roles, or Groups.
+    Fix: Remove the Policies list property from any IAM Users, Roles, or Groups.
+  Check was not compliant as property [/Resources/S3FileFunctionRole/Properties/Policies[L:261,C:8]] was not empty.
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: Inline policies are not allowed on IAM Users, Roles, or Groups.
+    Fix: Remove the Policies list property from any IAM Users, Roles, or Groups.
+  Check was not compliant as property [/Resources/GetCodeCommitRepositoryFunctionRole/Properties/Policies[L:369,C:8]] was not empty.
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: Inline policies are not allowed on IAM Users, Roles, or Groups.
+    Fix: Remove the Policies list property from any IAM Users, Roles, or Groups.
+  Check was not compliant as property [/Resources/EventsRole/Properties/Policies[L:566,C:8]] was not empty.
+    Guard Rule Set: guard-rules-registry-all-rules
+    Controls: all rules in AWS Guard Rules Registry    
+    Violation: Inline policies are not allowed on IAM Users, Roles, or Groups.
+    Fix: Remove the Policies list property from any IAM Users, Roles, or Groups.
+  Check was not compliant as property [/Resources/PullRequestBuildStatusFunctionRole/Properties/Policies[L:706,C:8]] was not empty.</failure>
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,42 @@
+version: 0.2
+
+env:
+  git-credential-helper: yes
+  shell: bash
+
+phases:
+  install:
+    commands:
+      - curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+      - export PATH=~/.guard/bin:$PATH
+      - pip install report2junit
+  pre_build:
+    commands:
+      - git config --global --add safe.directory /codebuild/output/srcDownload/src
+  build:
+    commands:
+      - PATH=${PATH}:~/.guard/bin
+      - cd cloudformation/resources/cfn-guard
+      - bash ./guard-validate.sh --git-compare > validation_output.txt
+  post_build:
+    commands:
+      - VALIDATION_RESULT=$(cat validation_output.txt)
+      - COMMENT_CONTENT="Pull request validation completed on `date`"
+      - |
+        aws codecommit post-comment-for-pull-request \
+          --pull-request-id "${CI_PULL_REQUEST_ID}" \
+          --repository-name "${CI_REPOSITORY_NAME}" \
+          --before-commit-id "${CI_SOURCE_COMMIT}" \
+          --after-commit-id "${CI_DESTINATION_COMMIT}" \
+          --content "${COMMENT_CONTENT}"
+artifacts:
+  base-directory: cloudformation/resources/cfn-guard/reports
+  files:
+    - '**/*'
+  discard-paths: yes
+
+reports:
+  guard-reportS:
+    base-directory:  cloudformation/resources/cfn-guard/reports
+    file-format: JUNITXML
+    discard-paths: yes

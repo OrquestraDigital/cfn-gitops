@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  BucketName:
+    Type: String
+    Description: S3 Bucket Name
+    Default: AppSample
+Resources:
+  AppSampleS3Bucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/aws-gitops-vanilla/gitops/cloudformation/e5f4d7f7bf8fff0d6f94c4bd1e2fd638.template
+      Parameters:
+        BucketName:
+          Ref: BucketName
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete

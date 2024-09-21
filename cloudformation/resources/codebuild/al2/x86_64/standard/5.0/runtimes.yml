@@ -1,0 +1,44 @@
+version: 0.1
+
+runtimes:
+  python:
+    versions:
+      3.12:
+        commands:
+          - echo "Installing Python version 3.12 ..."
+          - pyenv global $PYTHON_312_VERSION
+      3.11:
+        commands:
+          - echo "Installing Python version 3.11 ..."
+          - pyenv global $PYTHON_311_VERSION
+      3.10:
+        commands:
+          - echo "Installing Python version 3.10 ..."
+          - pyenv global $PYTHON_310_VERSION
+      3.9:
+        commands:
+          - echo "Installing Python version 3.9 ..."
+          - pyenv global $PYTHON_39_VERSION
+      default:
+        commands:
+          - echo "Installing custom Python version $VERSION ..."
+          - pyenv install $VERSION && rm -rf /tmp/*
+          - pyenv global $VERSION
+  nodejs:
+    versions:
+      22:
+        commands:
+          - echo "Installing Node.js version 22 ..."
+          - n $NODE_22_VERSION
+      20:
+        commands:
+          - echo "Installing Node.js version 20 ..."
+          - n $NODE_20_VERSION
+      18:
+        commands:
+          - echo "Installing Node.js version 18 ..."
+          - n $NODE_18_VERSION
+      default:
+        commands:
+          - echo "Installing custom Node.js version $VERSION ..."
+          - n $VERSION && rm -rf /tmp/*
