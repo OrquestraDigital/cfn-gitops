@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="cfn-guard validate report" tests="1" failures="1" errors="0" time="97">
-    <testsuite name="/home/sandrociceros/_prj/final/aws-gitops-vanilla/cloudformation/templates/S3/S3Bucket.yaml" errors="0" failures="1" time="97">
-        <testcase name="guard-rules-registry-all-rules.guard" time="94">
+<testsuites name="cfn-guard validate report" tests="1" failures="1" errors="0" time="13">
+    <testsuite name="/home/sandrociceros/_prj/orquestra/cfn-gitops/cloudformation/templates/S3/S3Bucket.yaml" errors="0" failures="1" time="13">
+        <testcase name="guard-rules-registry-all-rules.guard" time="12">
             <failure message="S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED">
     Guard Rule Set: guard-rules-registry-all-rules
     Controls: all rules in AWS Guard Rules Registry    

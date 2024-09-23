@@ -13,6 +13,7 @@ phases:
   pre_build:
     commands:
       - git config --global --add safe.directory /codebuild/output/srcDownload/src
+      - export TEMPLATE_ERROR_COUNT=0
   build:
     commands:
       - PATH=${PATH}:~/.guard/bin
@@ -20,15 +21,33 @@ phases:
       - bash ./guard-validate.sh --git-compare > validation_output.txt
   post_build:
     commands:
-      - VALIDATION_RESULT=$(cat validation_output.txt)
-      - COMMENT_CONTENT="Pull request validation completed on `date`"
       - |
+
+        COMMENT_CONTENT="Pull request validation completed on `date`"
+        if TEMPLATE_ERROR_COUNT -gt 0; then
+          COMMENT_CONTENT="${COMMENT_CONTENT}\n\n**Template Validation Errors:** $TEMPLATE_ERROR_COUNT"
+        fi
+
+        VALIDATION_RESULT=$(cat validation_output.txt)
+        COMMENT_CONTENT="${COMMENT_CONTENT}\n\n$VALIDATION_RESULT"
+
         aws codecommit post-comment-for-pull-request \
           --pull-request-id "${CI_PULL_REQUEST_ID}" \
           --repository-name "${CI_REPOSITORY_NAME}" \
           --before-commit-id "${CI_SOURCE_COMMIT}" \
           --after-commit-id "${CI_DESTINATION_COMMIT}" \
           --content "${COMMENT_CONTENT}"
+
+        if [[ $TEMPLATE_ERROR_COUNT -gt 0 ]]; then
+
+            aws codecommit update-pull-request-approval-state \
+                --pull-request-id "${CI_PULL_REQUEST_ID}" \
+                --repository-name "${CI_REPOSITORY_NAME}" \
+                --approval-state REJECTED \
+                --revision "${CI_DESTINATION_COMMIT}" \
+                --override-status REJECTED
+
+        fi
 artifacts:
   base-directory: cloudformation/resources/cfn-guard/reports
   files:

@@ -5,74 +5,41 @@ function validate_template() {
     local rule="$2"
     local TEMPLATE_NAME
     local RULE_NAME
+
     TEMPLATE_NAME=$(basename "$template") || error_exit "Erro ao obter o nome do template." 34
     RULE_NAME=$(basename "$rule") || error_exit "Erro ao obter o nome da regra." 35
 
     TEMPLATE_NAME=$(basename "$template") || exit_with_error "Erro ao obter o nome do template." 34
     RULE_NAME=$(basename "$rule") || exit_with_error "Erro ao obter o nome da regra." 35
 
-    cfn-guard validate -r "${rule}" -d "${template}" --type CFNTemplate --output-format junit --show-summary none --structured > "${REPORT_DIR}"/"${TEMPLATE_NAME}"-"${RULE_NAME}".xml
-    EXIT_STATUS=$?
+    echo "Validando $TEMPLATE_NAME com $RULE_NAME" 1>&2
+
+    cfn-guard validate -r "${rule}" -d "${template}" --type CFNTemplate --output-format junit --show-summary none --structured >"${REPORT_DIR}"/"${TEMPLATE_NAME}"-"${RULE_NAME}".xml
+
     case $EXIT_STATUS in
     0)
-        post_comment_to_pr "O arquivo $TEMPLATE_NAME está em conformidade com a regra $RULE_NAME." "${template}" "${template}"
+        echo "O arquivo $template está em conformidade com a regra $RULE_NAME." "${template}"
         ;;
     19)
-        post_comment_to_pr "O arquivo $TEMPLATE_NAME não está em conformidade com a regra $RULE_NAME. Consulte o relatório em ${REPORT_DIR} para obter mais detalhes." "${template}"
+        echo "O arquivo $template não está em conformidade com a regra $RULE_NAME. Consulte o relatório de testes da compilação ${CODEBUILD_BUILD_ID} para obter mais detalhes."
+        TEMPLATE_ERROR_COUNT=+1
         ;;
     5)
-        post_comment_to_pr "Erro: O arquivo $TEMPLATE_NAME não é válido." "${template}"
+        echo "Erro: O arquivo $template não é válido."
+        TEMPLATE_ERROR_COUNT=+1
         ;;
     *)
-        post_comment_to_pr "Erro desconhecido ao validar o arquivo $TEMPLATE_NAME ($EXIT_STATUS)." "${template}"
+        echo "Erro: desconhecido ao validar o arquivo $template ($EXIT_STATUS)."
+        TEMPLATE_ERROR_COUNT=+1
         ;;
     esac
-}
 
-function post_comment_to_pr {
-    local file_path="$2"
-
-    if [[ ! -f "$file_path" ]]; then
-        echo "File not found: $file_path"
-        return 1
-    fi
-
-    echo "Posting comment to PR with the following details:"
-    echo "Repository Name: ${CI_REPOSITORY_NAME}"
-    echo "Before Commit ID: ${CI_SOURCE_COMMIT}"
-    echo "After Commit ID: ${CI_DESTINATION_COMMIT}"
-    echo "Client Request Token: $(uuidgen)"
-    echo "Content: ${COMMENT_CONTENT}"
-    echo "File Path: ${file_path}"
-
-    if [[ "$IS_GIT_COMPARE" == true ]]; then
-        COMMENT_CONTENT="Error occurred during validation"
-        echo "Posting error comment to PR with the following details:"
-        echo "Repository Name: ${CI_REPOSITORY_NAME}"
-        echo "Before Commit ID: ${CI_SOURCE_COMMIT}"
-        echo "After Commit ID: ${CI_DESTINATION_COMMIT}"
-        echo "Client Request Token: $(uuidgen)"
-        echo "Content: ${COMMENT_CONTENT}"
-        echo "File Path: ${file_path}"
-
-        POST_RESULT=$(aws codecommit post-comment-for-compared-commit \
-                --repository-name "${CI_REPOSITORY_NAME}" \
-                --before-commit-id "${CI_SOURCE_COMMIT}" \
-                --after-commit-id "${CI_DESTINATION_COMMIT}" \
-                --client-request-token "$(uuidgen)" \
-                --content "${COMMENT_CONTENT}" \
-                --location filePath="${file_path}",filePosition=1,relativeFileVersion=AFTER \
-                )
-        echo "$POST_RESULT"
-
-    fi
 }
 
 function exit_with_error {
     echo "$1" 1>&2
     exit "$2"
 }
-
 
 echo "Iniciando a validação dos templates CloudFormation com o cfn-guard..."
 
@@ -114,19 +81,14 @@ if [[ "$1" == "--git-compare" ]]; then
     CHANGED_FILES+=("${temp_array[@]}")
 else
     # Validar todos os templates
-    if compgen -G "${STACK_DIR}/**/*.yaml" > /dev/null; then
-        mapfile -t temp_array < <(find "${STACK_DIR}" -name '*.yaml')
-        CHANGED_FILES+=("${temp_array[@]}")
-    fi
-    if compgen -G "${TEMPLATE_DIR}/**/*.yaml" > /dev/null; then
-        mapfile -t temp_array < <(find "${TEMPLATE_DIR}" -name '*.yaml')
-        CHANGED_FILES+=("${temp_array[@]}")
-    fi
+    mapfile -t temp_array < <(find "${STACK_DIR}" -name '*.yaml')
+    CHANGED_FILES+=("${temp_array[@]}")
+    mapfile -t temp_array < <(find "${TEMPLATE_DIR}" -name '*.yaml')
+    CHANGED_FILES+=("${temp_array[@]}")
 fi
 
 export IS_GIT_COMPARE
 export -f validate_template
-export -f post_comment_to_pr
 export SCRIPT_DIR
 export REPORT_DIR
 

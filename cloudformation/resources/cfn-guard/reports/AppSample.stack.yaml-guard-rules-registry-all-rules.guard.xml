@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="cfn-guard validate report" tests="1" failures="0" errors="0" time="75">
-    <testsuite name="/home/sandrociceros/_prj/final/aws-gitops-vanilla/cloudformation/stacks/AppSample.stack.yaml" errors="0" failures="0" time="75">
-        <testcase name="guard-rules-registry-all-rules.guard" time="73" status="skip"/>
+<testsuites name="cfn-guard validate report" tests="1" failures="0" errors="0" time="13">
+    <testsuite name="/home/sandrociceros/_prj/orquestra/cfn-gitops/cloudformation/stacks/AppSample.stack.yaml" errors="0" failures="0" time="13">
+        <testcase name="guard-rules-registry-all-rules.guard" time="13" status="skip"/>
     </testsuite>
 </testsuites>
