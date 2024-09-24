@@ -184,7 +184,7 @@ cython_debug/
 poetry.toml
 
 # ruff
-.ruff_cache/
+.ruff_cache/*
 
 # LSP config files
 pyrightconfig.json
@@ -198,7 +198,7 @@ pyrightconfig.json
 !.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
-.history/
+.history/*
 
 # Built Visual Studio Code Extensions
 *.vsix
@@ -213,6 +213,4 @@ pyrightconfig.json
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
 #AWS-GITOPS-VANILLA settings
-cloudformation/resources/cfn-guard/reports/
-cloudformation/resources/cfn-guard/validation_output.txt
-.GITOPS_TEMP/
+.GITOPS_TEMP/*

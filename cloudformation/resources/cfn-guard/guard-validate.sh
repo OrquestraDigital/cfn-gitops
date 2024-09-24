@@ -46,10 +46,10 @@ cd "$(git rev-parse --show-toplevel)" || exit_with_error "Erro ao mudar para o d
 # shellcheck source=/dev/null
 source cloudformation/resources/shared/get_changed_files.sh "$1" || exit_with_error "Erro ao obter os arquivos alterados" 14
 
-    OUTPUT_FILE="${TEMP_DIR}/validation_output.txt"
-    exec > "$OUTPUT_FILE"
+OUTPUT_FILE="${TEMP_DIR}/validation_output.txt"
+exec > "$OUTPUT_FILE"
 
-echo "VALIDAÇÃO COM O CFN-GUARD"
+echo "###### VALIDAÇÃO COM O CFN-GUARD"
 
 if ! hash cfn-guard 2>/dev/null; then
     echo "cfn-guard não está instalado. Acesse o link https://docs.aws.amazon.com/cfn-guard/latest/ug/setting-up.html para instalar."

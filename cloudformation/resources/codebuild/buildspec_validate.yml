@@ -21,31 +21,22 @@ phases:
   post_build:
     commands:
       - |
-        COMMENT_CONTENT="Pull request validation completed on `date`"
         TEMPLATE_ERROR_COUNT=$(cat ${TEMP_DIR}/validation_error_count.txt)
-
-        if [[ $TEMPLATE_ERROR_COUNT -gt 0 ]]; then
-          COMMENT_CONTENT="${COMMENT_CONTENT}\n\n**Template Validation Errors ** $TEMPLATE_ERROR_COUNT"
-        fi
-
         VALIDATION_RESULT=$(cat ${TEMP_DIR}/validation_output.txt)
-        COMMENT_CONTENT="${COMMENT_CONTENT}\n\n$VALIDATION_RESULT"
 
         aws codecommit post-comment-for-pull-request \
           --pull-request-id "${CI_PULL_REQUEST_ID}" \
           --repository-name "${CI_REPOSITORY_NAME}" \
           --before-commit-id "${CI_SOURCE_COMMIT}" \
           --after-commit-id "${CI_DESTINATION_COMMIT}" \
-          --content "${COMMENT_CONTENT}"
+          --content "${VALIDATION_RESULT}"
 
         if [[ $TEMPLATE_ERROR_COUNT -gt 0 ]]; then
 
             aws codecommit update-pull-request-approval-state \
-                --pull-request-id "${CI_PULL_REQUEST_ID}" \
-                --repository-name "${CI_REPOSITORY_NAME}" \
-                --approval-state REJECTED \
-                --revision "${CI_DESTINATION_COMMIT}" \
-                --override-status REJECTED
+                --pull-request-id "${CI_PULL_REQUEST_ID}"  \
+                --revision-id ${CI_REVISION_ID}  \
+                --approval-state "REVOKE"
 
         fi
 artifacts:
