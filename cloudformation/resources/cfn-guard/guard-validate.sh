@@ -11,21 +11,23 @@ function validate_template() {
 
     report_file="${REPORT_DIR}"/"${template_name}"-"${rule_name}".xml
     cfn-guard validate -r "${rule}" -d "${template}" --type CFNTemplate --output-format junit --show-summary none --structured > "${report_file}"
+
     EXIT_STATUS=$?
     case $EXIT_STATUS in
     0)
-        rm "${report_file}"
+        echo "- [OK] Arquivo: $template - Regra: $rule_name"
+        #rm "${report_file}"
         ;;
     19)
-        echo "O arquivo $template não está em conformidade com a regra $rule_name. Consulte o relatório de testes da compilação ${CODEBUILD_BUILD_ID} para obter mais detalhes."
+        echo "- [FALHA] Arquivo: $template - Regra: $rule_name"
         TEMPLATE_ERROR_COUNT=$((TEMPLATE_ERROR_COUNT + 1))
         ;;
     5)
-        echo "Erro: O arquivo $template não é válido."
+        echo "- [FALHA] Arquivo: $template inválido"
         TEMPLATE_ERROR_COUNT=$((TEMPLATE_ERROR_COUNT + 1))
         ;;
     *)
-        echo "Erro: desconhecido ao validar o arquivo $template ($EXIT_STATUS)."
+        echo "- [FALHA] Erro desconhecido ao validar o arquivo $template ($EXIT_STATUS)"
         TEMPLATE_ERROR_COUNT=$((TEMPLATE_ERROR_COUNT + 1))
         ;;
     esac
@@ -36,17 +38,18 @@ function exit_with_error {
     exit "$2"
 }
 
-echo "Iniciando a validação dos templates CloudFormation com o cfn-guard..."
+# Redireciona todo o stdout para o arquivo
 
-SCRIPT_DIR=$(dirname "$0") || exit_with_error "Erro ao obter o diretório do script." 12
-cd "$SCRIPT_DIR" || exit_with_error "Erro ao mudar para o diretório do script." 12
 
-cd "../../../" || exit_with_error "Erro ao mudar para o diretório inicial" 13
+cd "$(git rev-parse --show-toplevel)" || exit_with_error "Erro ao mudar para o diretório raiz do repositorio" 13
 
-if [[ "${1}" != "--ci"  ]]; then
-    # shellcheck source=/dev/null
-    source aws-gitops-vanilla.env || exit_with_error "Erro ao carregar as variáveis de ambiente." 14
-fi
+# shellcheck source=/dev/null
+source cloudformation/resources/shared/get_changed_files.sh "$1" || exit_with_error "Erro ao obter os arquivos alterados" 14
+
+    OUTPUT_FILE="${TEMP_DIR}/validation_output.txt"
+    exec > "$OUTPUT_FILE"
+
+echo "VALIDAÇÃO COM O CFN-GUARD"
 
 if ! hash cfn-guard 2>/dev/null; then
     echo "cfn-guard não está instalado. Acesse o link https://docs.aws.amazon.com/cfn-guard/latest/ug/setting-up.html para instalar."
@@ -62,29 +65,9 @@ mkdir -p "$REPORT_DIR" || error_exit "Erro ao criar diretório de relatórios." 
 
 mapfile -t SELECTED_RULES <"${RULES_SELECTED}" || exit_with_error "Erro ao ler o arquivo de regras selecionadas." 33
 
-#se CHANGED_FILES estiver vazio
-if [[ ${#CHANGED_FILES[@]} -eq 0 && "${1}" != "--ci"  ]]; then
-
-    if [[ "${1}" == "--git-compare" ]]; then
-        # Obter os arquivos alterados no commit atual em comparação ao branch main
-        mapfile -t temp_array < <(git diff --name-only main -- $(find ${STACK_DIR} -name '*.yaml'))
-        CHANGED_FILES+=("${temp_array[@]}")
-        mapfile -t temp_array < <(git diff --name-only main -- $(find ${TEMPLATE_DIR} -name '*.yaml'))
-        CHANGED_FILES+=("${temp_array[@]}")
-    else
-        # Validar todos os templates
-        mapfile -t temp_array < <(find "${STACK_DIR}" -name '*.yaml')
-        CHANGED_FILES+=("${temp_array[@]}")
-        mapfile -t temp_array < <(find "${TEMPLATE_DIR}" -name '*.yaml')
-        CHANGED_FILES+=("${temp_array[@]}")
-    fi
-
-fi
-
-
+readarray -t CHANGED_FILES < "${TEMP_DIR}"/changed_files.txt || error_exit "Erro ao ler o arquivo changed_files.txt." 33
 
 export -f validate_template
-export SCRIPT_DIR
 export REPORT_DIR
 export TEMPLATE_ERROR_COUNT=0
 
@@ -93,6 +76,8 @@ for template in "${CHANGED_FILES[@]}"; do
         validate_template "$template" "$rule"
     done
 done
+
+echo $TEMPLATE_ERROR_COUNT > "${TEMP_DIR}"/validation_error_count.txt
 
 # Mesclar todos os relatórios JUnit em um único arquivo
 #report2junit ./cloudformation/resources/cfn-guard/reports/*  --destination-file ./cloudformation/resources/cfn-guard/reports/combined-junit-report.xml --ignore-failures

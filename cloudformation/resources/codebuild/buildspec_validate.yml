@@ -13,27 +13,22 @@ phases:
   pre_build:
     commands:
       - git config --global --add safe.directory /codebuild/output/srcDownload/src
-      - export TEMPLATE_ERROR_COUNT=0
-      - source aws-gitops-vanilla.env
-      - mapfile -t temp_array < <(git diff --name-only main -- $(find ${STACK_DIR} -name '*.yaml'))
-      - CHANGED_FILES+=("${temp_array[@]}")
-      - mapfile -t temp_array < <(git diff --name-only main -- $(find ${TEMPLATE_DIR} -name '*.yaml'))
-      - CHANGED_FILES+=("${temp_array[@]}")
-      - export CHANGED_FILES
+      - source cloudformation/resources/shared/get_changed_files.sh --git-compare
   build:
     commands:
       - PATH=${PATH}:~/.guard/bin
-      - cd cloudformation/resources/cfn-guard
-      - bash ./guard-validate.sh --ci > validation_output.txt
+      - bash cloudformation/resources/cfn-guard/guard-validate.sh --git-compare
   post_build:
     commands:
       - |
         COMMENT_CONTENT="Pull request validation completed on `date`"
+        TEMPLATE_ERROR_COUNT=$(cat ${TEMP_DIR}/validation_error_count.txt)
+
         if [[ $TEMPLATE_ERROR_COUNT -gt 0 ]]; then
-          COMMENT_CONTENT="${COMMENT_CONTENT}\n\n**Template Validation Errors:** $TEMPLATE_ERROR_COUNT"
+          COMMENT_CONTENT="${COMMENT_CONTENT}\n\n**Template Validation Errors ** $TEMPLATE_ERROR_COUNT"
         fi
 
-        VALIDATION_RESULT=$(cat validation_output.txt)
+        VALIDATION_RESULT=$(cat ${TEMP_DIR}/validation_output.txt)
         COMMENT_CONTENT="${COMMENT_CONTENT}\n\n$VALIDATION_RESULT"
 
         aws codecommit post-comment-for-pull-request \
@@ -54,13 +49,13 @@ phases:
 
         fi
 artifacts:
-  base-directory: cloudformation/resources/cfn-guard/reports
+  base-directory: .GITOPS_TEMP/cloudformation/resources/cfn-guard/reports #TODO: .GITOPS_TEMP está hard-coded
   files:
     - '**/*'
   discard-paths: yes
 
 reports:
-  guard-reportS:
-    base-directory:  cloudformation/resources/cfn-guard/reports
+  guard-reports:
+    base-directory:  .GITOPS_TEMP/cloudformation/resources/cfn-guard/reports #TODO: .GITOPS_TEMP está hard-coded
     file-format: JUNITXML
     discard-paths: yes
