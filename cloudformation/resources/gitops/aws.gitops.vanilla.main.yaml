@@ -177,6 +177,11 @@ Resources:
                        "name": "CI_DESTINATION_COMMIT",
                        "value": <destinationCommit>,
                        "type": "PLAINTEXT"
+                   },
+                   {
+                       "name": "CI_REVISION_ID",
+                       "value": <revisionId>,
+                       "type": "PLAINTEXT"
                    }
                 ]
               }
@@ -186,6 +191,7 @@ Resources:
               repositoryName: $.detail.repositoryNames[0]
               sourceCommit: $.detail.sourceCommit
               destinationCommit: $.detail.destinationCommit
+              revisionId: $.detail.revisionId
 
   CloudWatchEventRuleDeploy:
     Type: AWS::Events::Rule

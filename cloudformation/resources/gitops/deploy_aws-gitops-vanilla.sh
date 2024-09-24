@@ -15,6 +15,33 @@ s3_bucket=$(read_input "Digite o nome do bucket S3 para suporte ao GitOps (aws-g
 s3_key=$(read_input "Digite o caminho do arquivo zip de inicialização do repositorio para GitOps que será gerado no bucket S3 de suporte ao GitOps (aws-gitops-vanilla/): " "aws-gitops-vanilla/")
 stack_name=$(read_input "Digite o nome do stack CloudFormation da automação GitOps (aws-gitops-vanilla): " "aws-gitops-vanilla")
 
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# Verifica se o arquivo .gitignore existe
+if [ ! -f .gitignore ]; then
+    echo "Arquivo .gitignore não encontrado."
+    exit 1
+fi
+
+# Lê o conteúdo do .gitignore linha a linha
+while IFS= read -r line; do
+    # Ignora linhas vazias ou que começam com # (comentários)
+    if [[ -z "$line" || "$line" =~ ^# ]]; then
+        continue
+    fi
+
+    # Verifica se o padrão termina com *, indicando um diretório
+    if [[ "$line" =~ \*$ ]]; then
+        # Remove o asterisco para a busca
+        pattern="${line%*}"
+        find . -wholename "$pattern" -type d -print0 | xargs -0 rm -rf
+    else
+        # Busca por arquivos
+        find . -name "$line" -print0 | xargs -0 rm -f
+    fi
+done < .gitignore
+
 # Verificar se o bucket S3 existe
 if aws s3 ls "s3://$s3_bucket" 2>&1 | grep -q 'NoSuchBucket'; then
 
@@ -30,14 +57,10 @@ else
 	echo "Bucket $s3_bucket já existe."
 fi
 
-# Criar um arquivo zip com README.md e buildspec.yml
 zip_file="repository_files.zip"
-cd ../../../
 zip -r "$zip_file" \
 	cloudformation/ \
-	.cfnlintrc \
 	.gitignore \
-	aws-gitops-vanilla.env \
 	README.md
 
 # Enviar o arquivo zip para o bucket S3
