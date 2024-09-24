@@ -36,7 +36,9 @@ cd ../../../
 zip -r "$zip_file" \
 	cloudformation/ \
 	.cfnlintrc \
-	.gitignore
+	.gitignore \
+	aws-gitops-vanilla.env \
+	README.md
 
 # Enviar o arquivo zip para o bucket S3
 aws s3 cp "$zip_file" s3://"$s3_bucket"/"$s3_key"

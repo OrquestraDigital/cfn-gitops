@@ -14,17 +14,22 @@ phases:
     commands:
       - git config --global --add safe.directory /codebuild/output/srcDownload/src
       - export TEMPLATE_ERROR_COUNT=0
+      - source aws-gitops-vanilla.env
+      - mapfile -t temp_array < <(git diff --name-only main -- $(find ${STACK_DIR} -name '*.yaml'))
+      - CHANGED_FILES+=("${temp_array[@]}")
+      - mapfile -t temp_array < <(git diff --name-only main -- $(find ${TEMPLATE_DIR} -name '*.yaml'))
+      - CHANGED_FILES+=("${temp_array[@]}")
+      - export CHANGED_FILES
   build:
     commands:
       - PATH=${PATH}:~/.guard/bin
       - cd cloudformation/resources/cfn-guard
-      - bash ./guard-validate.sh --git-compare > validation_output.txt
+      - bash ./guard-validate.sh --ci > validation_output.txt
   post_build:
     commands:
       - |
-
         COMMENT_CONTENT="Pull request validation completed on `date`"
-        if TEMPLATE_ERROR_COUNT -gt 0; then
+        if [[ $TEMPLATE_ERROR_COUNT -gt 0 ]]; then
           COMMENT_CONTENT="${COMMENT_CONTENT}\n\n**Template Validation Errors:** $TEMPLATE_ERROR_COUNT"
         fi
 

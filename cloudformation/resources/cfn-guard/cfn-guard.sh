@@ -147,8 +147,11 @@ if file "$RULES_FILE" | grep -q 'Zip archive data'; then
                 break
             fi
         done
+
+        echo "Arquivo de regras criado com sucesso. "
     fi
 
 else
     error_exit "O arquivo baixado não é um arquivo zip válido." 37
 fi
+

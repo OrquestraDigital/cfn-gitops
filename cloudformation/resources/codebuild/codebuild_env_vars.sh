@@ -23,6 +23,8 @@ fi
 
 # Exportar as variáveis de ambiente
 echo "$ENV_VARS" | jq -r '.[] | "export \(.name)=\(.value)"' > /tmp/codebuild_env_vars.sh
+echo "$ENV_VARS" | jq -r '.[] | "\(.name)=\(.value)"' > codebuild.env
+
 source /tmp/codebuild_env_vars.sh
 
 cat /tmp/codebuild_env_vars.sh

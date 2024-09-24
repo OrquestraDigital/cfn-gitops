@@ -18,13 +18,13 @@ Resources:
             comment: "Justificação para ignorar a verificação de replicação do bucket S3"
 
 Outputs:
-  S3BucketName:
+  BucketName:
     Value: !Ref BucketName
     Description: S3 Bucket Name
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketName"
-  S3BucketArn:
+      Name: !Sub "${AWS::StackName}-BucketName"
+  BucketArn:
     Value: !GetAtt S3Bucket.Arn
     Description: S3 Bucket Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketArn"
+      Name: !Sub "${AWS::StackName}-BucketArn"

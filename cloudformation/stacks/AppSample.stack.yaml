@@ -16,9 +16,17 @@ Resources:
           BucketName: !Ref BucketName
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
-    
 
 
 
+Outputs:
+  AppSampleS3Bucket:
+    Value: !GetAtt AppSampleS3Bucket.Outputs.BucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketName"
+  AppSampleS3BucketArn:
+    Value: !GetAtt AppSampleS3Bucket.Outputs.BucketArn
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketArn"
 
- 
+
